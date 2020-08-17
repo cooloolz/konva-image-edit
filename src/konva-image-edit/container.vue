@@ -135,39 +135,37 @@ export default {
          */
         initIcons() {
             const _this = this;
-            this.icons.forEach((item, index) => {
-                const imageObj = new Image();
-                imageObj.onload = function () {
-                    const icon = new Konva.Image({
-                        image: imageObj,
-                        x: item.x,
-                        y: item.y,
+            for (let i = 0; i < this.icons.length; i++) {
+                Konva.Image.fromURL(audioIcon, function (icon) {
+                    icon.on("click tap", function (e) {
+                        console.log("click", i);
+                        icon.attrs.image.src = audioPlayIcon;
+                        icon.destroy();
+                    });
+                    icon.on("mousedown touchstart", function (event) {
+                        event.cancelBubble = true;
+                    });
+                    icon.on("dragend", function (e) {
+                        const pos = icon.position();
+                        const newpos = _this.icons[i];
+                        _this.icons[i] = {
+                            x: pos.x,
+                            y: pos.y,
+                            isPlaying: newpos.isPlaying,
+                        };
+                        console.log("dragend", pos.x, pos.y);
+                    });
+                    icon.setAttrs({
+                        x: _this.icons[i].x,
+                        y: _this.icons[i].y,
                         width: 40,
                         height: 40,
                         draggable: true,
                     });
-                    // add cursor styling
-                    icon.on("click", function () {
-                        console.log("click");
-                        event.cancelBubble = true;
-                    });
-                    icon.on("mousedown touchstart", function (event) {
-                        console.log("touchstart", index, icon);
-                        event.cancelBubble = true;
-                        icon.attrs.image.src = audioPlayIcon;
-                        console.log("image", icon.attrs.image.src);
-                    });
-                    icon.on("mouseover", function () {
-                        document.body.style.cursor = "pointer";
-                    });
-                    icon.on("mouseout", function () {
-                        document.body.style.cursor = "default";
-                    });
                     _this.markLayer.add(icon);
-                    _this.markLayer.batchDraw();
-                };
-                imageObj.src = audioIcon;
-            });
+                    _this.markLayer.draw();
+                });
+            }
         },
         /**
          * @description: 监听鼠标按下或者触摸开始
