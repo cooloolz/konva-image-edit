@@ -5,6 +5,8 @@
 <script>
 import konva from "konva";
 
+const audioIcon = require("@/image-editor/audio.png");
+const audioPlayIcon = require("@/image-editor/audio-on.gif");
 export default {
     props: {
         width: {
@@ -19,6 +21,21 @@ export default {
             required: true,
             type: String,
         },
+        canDraw: {
+            // 可画
+            type: Boolean,
+            default: true,
+        },
+        lineColor: {
+            // 画笔颜色
+            type: String,
+            default: "red",
+        },
+        lineWidth: {
+            // 画笔宽度
+            type: Number,
+            default: 2,
+        },
     },
 
     data() {
@@ -28,6 +45,22 @@ export default {
             backImage: null,
             drawLayer: null,
             markLayer: null,
+            line: null,
+            // 是否处于绘制状态
+            canvasMoveUse: false,
+            // 储存坐标信息
+            icons: [
+                {
+                    x: 80,
+                    y: 100,
+                    isPlaying: false,
+                },
+                {
+                    x: 190,
+                    y: 200,
+                    isPlaying: false,
+                },
+            ],
         };
     },
 
@@ -35,6 +68,7 @@ export default {
         this.initStage();
         this.initLayer();
         this.initImageLayerBackImage();
+        this.initIcons();
     },
 
     methods: {
@@ -50,13 +84,13 @@ export default {
                 width: this.width,
                 height: this.height,
             });
-            this.stage.on("mousedown touchstart", function(event) {
+            this.stage.on("mousedown touchstart", function (event) {
                 _this.stageOnMousedownOrTouchstart(event);
             });
-            this.stage.on("mouseup touchend", function(event) {
+            this.stage.on("mouseup touchend", function (event) {
                 _this.stageOnMouseupOrTouchend(event);
             });
-            this.stage.on("mousemove touchmove", function(event) {
+            this.stage.on("mousemove touchmove", function (event) {
                 _this.stageOnMousemoveOrTouchmove(event);
             });
         },
@@ -81,7 +115,7 @@ export default {
         initImageLayerBackImage() {
             const _this = this;
             const imageObj = new Image();
-            imageObj.onload = function() {
+            imageObj.onload = function () {
                 _this.backImage = new Konva.Image({
                     x: 0,
                     y: 0,
@@ -95,23 +129,90 @@ export default {
             imageObj.src = this.imageUrl;
         },
         /**
+         * @description: 初始化音频图标
+         * @param {type}
+         * @return {type}
+         */
+        initIcons() {
+            const _this = this;
+            this.icons.forEach((item, index) => {
+                const imageObj = new Image();
+                imageObj.onload = function () {
+                    const icon = new Konva.Image({
+                        image: imageObj,
+                        x: item.x,
+                        y: item.y,
+                        width: 40,
+                        height: 40,
+                        draggable: true,
+                    });
+                    // add cursor styling
+                    icon.on("click", function () {
+                        console.log("click");
+                        event.cancelBubble = true;
+                    });
+                    icon.on("mousedown touchstart", function (event) {
+                        console.log("touchstart", index, icon);
+                        event.cancelBubble = true;
+                        icon.attrs.image.src = audioPlayIcon;
+                        console.log("image", icon.attrs.image.src);
+                    });
+                    icon.on("mouseover", function () {
+                        document.body.style.cursor = "pointer";
+                    });
+                    icon.on("mouseout", function () {
+                        document.body.style.cursor = "default";
+                    });
+                    _this.markLayer.add(icon);
+                    _this.markLayer.batchDraw();
+                };
+                imageObj.src = audioIcon;
+            });
+        },
+        /**
          * @description: 监听鼠标按下或者触摸开始
          * @param {type}
          * @return {type}
          */
-        stageOnMousedownOrTouchstart(event) {},
+        stageOnMousedownOrTouchstart(event) {
+            if (this.canDraw) {
+                this.canvasMoveUse = true;
+                const pos = this.stage.getPointerPosition();
+                this.line = new Konva.Line({
+                    stroke: "#df4b26",
+                    strokeWidth: 5,
+                    globalCompositeOperation: "source-over",
+                    points: [pos.x, pos.y],
+                });
+                this.drawLayer.add(this.line);
+            }
+        },
         /**
          * @description: 监听鼠标放开或者触摸结束
          * @param {type}
          * @return {type}
          */
-        stageOnMouseupOrTouchend(event) {},
+        stageOnMouseupOrTouchend(event) {
+            if (this.canDraw) {
+                this.canvasMoveUse = false;
+                this.line = null;
+            }
+        },
         /**
          * @description: 监听鼠标拖动或者触摸过程
          * @param {type}
          * @return {type}
          */
-        stageOnMousemoveOrTouchmove(event) {},
+        stageOnMousemoveOrTouchmove(event) {
+            if (this.canvasMoveUse) {
+                // 只有允许移动时调用
+
+                const pos = this.stage.getPointerPosition();
+                var newPoints = this.line.points().concat([pos.x, pos.y]);
+                this.line.points(newPoints);
+                this.drawLayer.batchDraw();
+            }
+        },
     },
 };
 </script>
