@@ -1,7 +1,7 @@
 <template>
     <div class="konva-image-edit-tool-bar">
         <!-- 主要按钮部分 -->
-        <div class="konva-image-edit-tool-bar-action-part" v-if="false">
+        <div class="konva-image-edit-tool-bar-action-part" v-show="true">
             <div class="top-action-btns">
                 <div class="action-btn">
                     画笔
@@ -27,7 +27,7 @@
         </div>
 
         <!-- 颜色以及线宽部分 -->
-        <div class="konva-image-edit-tool-bar-colors-and-width">
+        <div class="konva-image-edit-tool-bar-colors-and-width" v-show='false'>
             <div class="top-action-btns">
                 <div class="action-btn">
                     关闭
@@ -52,7 +52,9 @@
             </div>
             <div class="bottom-width" v-show="activeTab === 'width'">
                 <span class="small-round"></span>
-                <van-slider v-model="sliderValue" bar-height="4px" active-color="#ee0a24" />
+                <div class="slider">
+                    <span class="slider-round"></span>
+                </div>
                 <span class="big-round"></span>
             </div>
         </div>
@@ -68,7 +70,7 @@ export default {
             activeTab: "width",
             colors: ["#F2F2F2", "#2C2C2C", "#F85251", "#FEC314", "#12C261", "#19ADFF", "#8569EC"],
             activeColor: "#F85251",
-            sliderValue: 2
+            sliderValue: 2,
         };
     },
 };
@@ -185,11 +187,11 @@ export default {
         .bottom-width {
             display: flex;
             flex: 1;
-            align-items: flex-end;
-            justify-content: space-around;
-            padding-bottom: 5px;
+            align-items: center;
+            justify-content: center;
 
-            .small-round, .big-round {
+            .small-round,
+            .big-round {
                 width: 12px;
                 height: 12px;
                 border-radius: 12px;
@@ -200,6 +202,24 @@ export default {
                     width: 24px;
                     height: 24px;
                     border-radius: 24px;
+                }
+            }
+
+            .slider {
+                border-bottom: 10px solid #d6d6d6;
+                border-left: 180px solid transparent;
+                position: relative;
+                margin-bottom: 12px;
+                margin-left: 25px;
+                margin-right: 25px;
+                .slider-round {
+                    position: absolute;
+                    bottom: -20px;
+                    left: -180px;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 36px;
+                    background-color: #fff;
                 }
             }
         }
