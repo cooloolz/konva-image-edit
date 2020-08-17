@@ -28,6 +28,10 @@ export default {
             backImage: null,
             drawLayer: null,
             markLayer: null,
+            isDraw: false,
+            drawMode: "brush", // 画笔是brush，橡皮檫是Eraser
+            lastDrawPoint: null,
+            lastDrawLine: null,
         };
     },
 
@@ -99,19 +103,66 @@ export default {
          * @param {type}
          * @return {type}
          */
-        stageOnMousedownOrTouchstart(event) {},
+        stageOnMousedownOrTouchstart(event) {
+            this.startDraw();
+        },
         /**
          * @description: 监听鼠标放开或者触摸结束
          * @param {type}
          * @return {type}
          */
-        stageOnMouseupOrTouchend(event) {},
+        stageOnMouseupOrTouchend(event) {
+            this.endDraw();
+        },
         /**
          * @description: 监听鼠标拖动或者触摸过程
          * @param {type}
          * @return {type}
          */
-        stageOnMousemoveOrTouchmove(event) {},
+        stageOnMousemoveOrTouchmove(event) {
+            this.moveDraw();
+        },
+        // 画笔部分 start
+        /**
+         * @description: 开始绘画
+         * @param {type}
+         * @return {type}
+         */
+        startDraw() {
+            this.isDraw = true;
+            this.lastDrawPoint = this.stage.getPointerPosition();
+            this.lastDrawLine = new Konva.Line({
+                tension: 1,
+                stroke: "#df4b26",
+                strokeWidth: 2,
+                lineCap: "round",
+                lineJoin: "round",
+                globalCompositeOperation: this.drawMode === "brush" ? "source-over" : "destination-out",
+                points: [this.lastDrawPoint.x, this.lastDrawPoint.y],
+            });
+            this.drawLayer.add(this.lastDrawLine);
+        },
+        /**
+         * @description: 画笔中
+         * @param {type}
+         * @return {type}
+         */
+        moveDraw() {
+            if (!this.isDraw) return false;
+            this.lastDrawPoint = this.stage.getPointerPosition();
+            const newPoints = this.lastDrawLine.points().concat([this.lastDrawPoint.x, this.lastDrawPoint.y]);
+            this.lastDrawLine.points(newPoints);
+            this.drawLayer.batchDraw();
+        },
+        /**
+         * @description: 结束画笔
+         * @param {type}
+         * @return {type}
+         */
+        endDraw() {
+            this.isDraw = false;
+        },
+        // 画笔部分 end
     },
 };
 </script>
