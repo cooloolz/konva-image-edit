@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "gifler": "^0.1.0",
     "konva": "^7.0.5",
     "normalize.css": "^8.0.1",
     "onsenui": "^2.10.10",

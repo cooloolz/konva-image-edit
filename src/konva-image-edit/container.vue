@@ -4,6 +4,7 @@
 
 <script>
 import konva from "konva";
+import "gifler";
 
 const audioIcon = require("@/image-editor/audio.png");
 const audioPlayIcon = require("@/image-editor/audio-on.gif");
@@ -45,19 +46,27 @@ export default {
             backImage: null,
             drawLayer: null,
             markLayer: null,
-            // 储存坐标信息
+            // 音频图标坐标信息数组
             icons: [
                 {
                     x: 80,
                     y: 100,
                     isPlaying: false,
+                    src: "1.mp4",
                 },
                 {
                     x: 190,
                     y: 200,
                     isPlaying: false,
+                    src: "2.mp4",
                 },
             ],
+            audioImages: [], //静态音频图标数组
+            audioGif: {
+                //gif音频图标
+                animators: [], //gif动画对象数组
+                audioPlayCanvas: [], //gif节点数组
+            },
             isDraw: false,
             drawMode: "brush", // 画笔是brush，橡皮檫是Eraser
             lastDrawPoint: null,
@@ -137,11 +146,10 @@ export default {
         initIcons() {
             const _this = this;
             for (let i = 0; i < this.icons.length; i++) {
+                //为音频创建静态图标
                 Konva.Image.fromURL(audioIcon, function (icon) {
-                    icon.on("click tap", function (e) {
-                        console.log("click", i);
-                        icon.attrs.image.src = audioPlayIcon;
-                        icon.destroy();
+                    icon.on("click tap", function () {
+                        _this.audioIconOnClickOrTap(icon, i);
                     });
                     icon.on("mousedown touchstart", function (event) {
                         event.cancelBubble = true;
@@ -149,12 +157,7 @@ export default {
                     icon.on("dragend", function (e) {
                         const pos = icon.position();
                         const newpos = _this.icons[i];
-                        _this.icons[i] = {
-                            x: pos.x,
-                            y: pos.y,
-                            isPlaying: newpos.isPlaying,
-                        };
-                        console.log("dragend", pos.x, pos.y);
+                        _this.icons[i] = { ...newpos, x: pos.x, y: pos.y };
                     });
                     icon.setAttrs({
                         x: _this.icons[i].x,
@@ -163,9 +166,29 @@ export default {
                         height: 40,
                         draggable: true,
                     });
+                    _this.audioImages[i] = icon;
                     _this.markLayer.add(icon);
                     _this.markLayer.draw();
                 });
+                //为音频创建gif图标
+                const canvas = document.createElement("canvas");
+                let animator = null;
+                gifler(audioPlayIcon).frames(
+                    canvas,
+                    function (ctx, frame) {
+                        if (!animator) {
+                            this.stop();
+                            this.reset();
+                        }
+                        animator = this;
+                        _this.audioGif.animators[i] = animator;
+                        ctx.drawImage(frame.buffer, frame.x, frame.y);
+                        _this.markLayer.draw();
+                        //console.log("frame", frame.delay, _this.animator.width, _this.animator.height);
+                    },
+                    true
+                );
+                _this.audioGif.audioPlayCanvas.push(canvas);
             }
         },
         /**
@@ -233,6 +256,45 @@ export default {
             this.isDraw = false;
         },
         // 画笔部分 end
+        // 音频部分 start
+        /**
+         * @description: 监听音频图标鼠标按下或者触摸开始
+         * @param {type}
+         * @return {type}
+         */
+        audioIconOnClickOrTap(item, index) {
+            const _this = this;
+            this.icons.forEach((element, i) => {
+                element.isPlaying = i == index && !element.isPlaying ? true : false;
+                if (element.isPlaying) {
+                    //播放
+                    _this.audioGif.animators[i].reset();
+                    _this.audioGif.animators[i].start();
+                    _this.audioImages[i].setAttr("image", _this.audioGif.audioPlayCanvas[i]);
+                    _this.audioImages[i].draw();
+                    _this.onPlay(i);
+                } else {
+                    //停播
+                    _this.audioGif.animators[i].stop();
+                    let imageObj = new Image();
+                    imageObj.src = element.isPlaying ? audioPlayIcon : audioIcon;
+                    imageObj.onload = function () {
+                        _this.audioImages[i].setAttr("image", imageObj);
+                        _this.audioImages[i].draw();
+                    };
+                }
+                return element;
+            });
+        },
+        /**
+         * @description: 播放音频
+         * @param {type}
+         * @return {type}
+         */
+        onPlay(index) {
+            console.log("play", index, JSON.parse(JSON.stringify(this.icons[index])));
+        },
+        // 音频部分
     },
 };
 </script>
