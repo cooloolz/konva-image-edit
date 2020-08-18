@@ -5,11 +5,11 @@
                 返回
             </div>
             <div class="center">
-                图片批改
+                1/5
             </div>
-            <div class="right">
+            <!-- <div class="right">
                 保存
-            </div>
+            </div> -->
         </v-ons-toolbar>
 
         <div class="page__content" id="page__content">
@@ -67,7 +67,7 @@ export default {
 }
 
 ::v-deep .toolbar {
-    background: #71acf8;
+    background: #000;
 
     .toolbar__left,
     .toolbar__center,

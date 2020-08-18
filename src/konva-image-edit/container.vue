@@ -45,9 +45,6 @@ export default {
             backImage: null,
             drawLayer: null,
             markLayer: null,
-            line: null,
-            // 是否处于绘制状态
-            canvasMoveUse: false,
             // 储存坐标信息
             icons: [
                 {
@@ -61,6 +58,10 @@ export default {
                     isPlaying: false,
                 },
             ],
+            isDraw: false,
+            drawMode: "brush", // 画笔是brush，橡皮檫是Eraser
+            lastDrawPoint: null,
+            lastDrawLine: null,
         };
     },
 
@@ -173,17 +174,7 @@ export default {
          * @return {type}
          */
         stageOnMousedownOrTouchstart(event) {
-            if (this.canDraw) {
-                this.canvasMoveUse = true;
-                const pos = this.stage.getPointerPosition();
-                this.line = new Konva.Line({
-                    stroke: "#df4b26",
-                    strokeWidth: 5,
-                    globalCompositeOperation: "source-over",
-                    points: [pos.x, pos.y],
-                });
-                this.drawLayer.add(this.line);
-            }
+            this.startDraw();
         },
         /**
          * @description: 监听鼠标放开或者触摸结束
@@ -191,10 +182,7 @@ export default {
          * @return {type}
          */
         stageOnMouseupOrTouchend(event) {
-            if (this.canDraw) {
-                this.canvasMoveUse = false;
-                this.line = null;
-            }
+            this.endDraw();
         },
         /**
          * @description: 监听鼠标拖动或者触摸过程
@@ -202,15 +190,49 @@ export default {
          * @return {type}
          */
         stageOnMousemoveOrTouchmove(event) {
-            if (this.canvasMoveUse) {
-                // 只有允许移动时调用
-
-                const pos = this.stage.getPointerPosition();
-                var newPoints = this.line.points().concat([pos.x, pos.y]);
-                this.line.points(newPoints);
-                this.drawLayer.batchDraw();
-            }
+            this.moveDraw();
         },
+        // 画笔部分 start
+        /**
+         * @description: 开始绘画
+         * @param {type}
+         * @return {type}
+         */
+        startDraw() {
+            this.isDraw = true;
+            this.lastDrawPoint = this.stage.getPointerPosition();
+            this.lastDrawLine = new Konva.Line({
+                tension: 1,
+                stroke: "#df4b26",
+                strokeWidth: 2,
+                lineCap: "round",
+                lineJoin: "round",
+                globalCompositeOperation: this.drawMode === "brush" ? "source-over" : "destination-out",
+                points: [this.lastDrawPoint.x, this.lastDrawPoint.y],
+            });
+            this.drawLayer.add(this.lastDrawLine);
+        },
+        /**
+         * @description: 画笔中
+         * @param {type}
+         * @return {type}
+         */
+        moveDraw() {
+            if (!this.isDraw) return false;
+            this.lastDrawPoint = this.stage.getPointerPosition();
+            const newPoints = this.lastDrawLine.points().concat([this.lastDrawPoint.x, this.lastDrawPoint.y]);
+            this.lastDrawLine.points(newPoints);
+            this.drawLayer.batchDraw();
+        },
+        /**
+         * @description: 结束画笔
+         * @param {type}
+         * @return {type}
+         */
+        endDraw() {
+            this.isDraw = false;
+        },
+        // 画笔部分 end
     },
 };
 </script>
