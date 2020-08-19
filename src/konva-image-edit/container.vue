@@ -1,11 +1,11 @@
 <template>
-    <div class="konva-image-edit-container" id="konvaImageEditContainer"></div>
+    <div class="konva-image-edit-container" id="konvaImageEditContainer" v-hammer:pinchin="onPinchin"></div>
 </template>
 
 <script>
-import konva from "konva";
+import Konva from "konva";
 import "gifler";
-
+import Hammer from "hammerjs";
 const audioIcon = require("@/image-editor/audio.png");
 const audioPlayIcon = require("@/image-editor/audio-on.gif");
 export default {
@@ -25,7 +25,7 @@ export default {
         canDraw: {
             // 可画
             type: Boolean,
-            default: true,
+            default: false,
         },
         lineColor: {
             // 画笔颜色
@@ -46,6 +46,7 @@ export default {
 
     data() {
         return {
+            hammer: null,
             stage: null,
             imageLayer: null,
             backImage: null,
@@ -83,6 +84,7 @@ export default {
         this.initLayer();
         this.initImageLayerBackImage();
         this.initIcons();
+        this.initHammer();
     },
 
     methods: {
@@ -107,6 +109,61 @@ export default {
             this.stage.on("mousemove touchmove", function (event) {
                 _this.stageOnMousemoveOrTouchmove(event);
             });
+        },
+        /**
+         * 给canvas添加手势
+         *
+         * @memberof ImageExamine
+         */
+        initHammer() {
+            const _this = this;
+            this.hammer = new Hammer(this.markLayer);
+            this.hammer.get("pinch").set({ enable: true, direction: Hammer.DIRECTION_ALL });
+            this.hammer.get("pan").set({ enable: true, direction: Hammer.DIRECTION_ALL });
+            this.hammer.on("pinchmove", (e) => {
+                console.log("pinchmove", e.scale);
+                //_this._hammerPinchMove(ev, _this);
+            });
+            this.hammer.on("pinchend", (e) => {
+                //this._hammerPinchEnd(e, _this);
+            });
+            this.hammer.on("panend", (e) => {
+                console.log("end", e);
+                //_this._hammerPinchMove(ev, _this);
+            });
+        },
+        /**
+         * 双指移动
+         *
+         * @param {*} ev
+         * @param {*} _this
+         * @memberof ImageExamine
+         */
+        _hammerPinchMove(ev, _this) {
+            // console.log("ImageExamine -> _hammerPinchMove -> ev", ev);
+            _this.zoomAndPan.scale = ev.scale;
+            _this.zoomAndPan.deltaX = ev.deltaX;
+            _this.zoomAndPan.deltaY = ev.deltaY;
+            _this._redrawImage();
+        },
+        /**
+         * 双指结束
+         *
+         * @param {*} ev
+         * @memberof ImageExamine
+         */
+        _hammerPinchEnd(ev, _this) {
+            // console.log("ImageExamine -> _hammerPinchEnd -> ev", ev);
+            // 把这次最后的一个比例记录下来
+            _this.zoomAndPan.lastScale = _this.zoomAndPan.scale;
+            _this._getAfterTransformOrigin(
+                this.zoomAndPan.lastScale,
+                0,
+                0,
+                this.zoomAndPan.lastScale,
+                this.zoomAndPan.deltaX,
+                this.zoomAndPan.deltaY
+            );
         },
         /**
          * @description: 初始化层,初始化三层layer，最底层为图片，中间为自由绘图，第三层为音频坐标或者文字
@@ -226,6 +283,7 @@ export default {
          * @return {type}
          */
         startDraw() {
+            if (!this.canDraw) return;
             this.isDraw = true;
             this.lastDrawPoint = this.stage.getPointerPosition();
             this.lastDrawLine = new Konva.Line({
@@ -271,6 +329,9 @@ export default {
                 this.drawLayer.draw();
             }
         },
+        onPinchin(e) {
+            console.log("pinchin", e.scale);
+        },
         // 画笔部分 end
         // 音频部分 start
         /**
@@ -291,6 +352,7 @@ export default {
                     _this.onPlay(i);
                 } else {
                     //停播
+                    _this.onStop(i);
                     _this.audioGif.animators[i].stop();
                     let imageObj = new Image();
                     imageObj.src = element.isPlaying ? audioPlayIcon : audioIcon;
@@ -308,8 +370,9 @@ export default {
          * @return {type}
          */
         onPlay(index) {
-            console.log("play", index, JSON.parse(JSON.stringify(this.icons[index])));
+            console.log("play", index);
         },
+        onStop(index) {},
         // 音频部分
     },
 };

@@ -8,6 +8,7 @@
             :lineColor="lineColor"
             :lineWidth="lineWidth"
             :drawMode="drawMode"
+            :canDraw="toolType == 'brush' || toolType == 'eraser'"
         ></konva-image-edit-container>
 
         <konva-image-edit-tool-bar

@@ -17,7 +17,14 @@
                 <div class="action-btn" @click="undo">
                     撤回
                 </div>
-                <div class="action-btn audio">
+                <div
+                    ref="audio_btn"
+                    class="action-btn audio"
+                    v-hammer:press="audioRecordBtnPress"
+                    v-hammer:pressup="audioRecordBtnPressUp"
+                    v-hammer:pan.up="audioRecordBtnPanUp"
+                    v-hammer:panend="audioRecordBtnPanEnd"
+                >
                     按住说话
                 </div>
                 <div class="action-btn">
@@ -83,7 +90,6 @@
 </template>
 
 <script>
-import "konva";
 export default {
     props: {
         type: {
@@ -102,9 +108,66 @@ export default {
             activeColor: "#F85251",
             sliderValue: 2,
             progressValue: 0,
+            // 判断是否在触摸录音键
+            onAudioTouch: false,
+            onAudioCancel: false,
         };
     },
     methods: {
+        /**
+         * @description: 长按开始，检测权限并开始录音
+         * @param {type}
+         * @return:
+         */
+        async audioRecordBtnPress(e) {
+            console.log("press");
+            // this.recordAudio = new RecordAudio(this.getAudioUrl);
+            // const check = await this.recordAudio.checkPermisson(true);
+            // if (check) {
+            //     this.recordAudio.start();
+            this.onAudioTouch = true;
+            // }
+        },
+        /**
+         * @description: 长按结束，停止录音
+         * @param {type}
+         * @return:
+         */
+        audioRecordBtnPressUp() {
+            console.log("pressup");
+            // this.onAudioTouch = false;
+            // this.onAudioCancel = false;
+            // this.recordAudio.stop();
+        },
+        /**
+         * @description: 触发触摸时往上移，超过按钮上边界取消录音
+         * @param {type}
+         * @return:
+         */
+        audioRecordBtnPanUp(e) {
+            const btnTopY = this.$refs.audio_btn.getBoundingClientRect().top;
+            if (e.center.y < btnTopY) {
+                this.onAudioCancel = true;
+            } else {
+                this.onAudioCancel = false;
+            }
+        },
+        /**
+         * @description: 触发触摸时往下移，到最底部意外结束
+         * @param {type}
+         * @return:
+         */
+        audioRecordBtnPanEnd(e) {
+            const btnTopY = this.$refs.audio_btn.getBoundingClientRect().top;
+            this.onAudioTouch = false;
+            this.onAudioCancel = false;
+            // if (e.center.y < btnTopY) {
+            //     this.recordAudio.reset();
+            // } else {
+            //     this.recordAudio.stop();
+            // }
+            console.log("panend", e.center.y, btnTopY, e.center.y < btnTopY ? "reset" : "stop");
+        },
         changeToolType(type) {
             if (type == "brush" || type == "eraser") {
                 this.$emit("changeDrawMode", type);
@@ -174,6 +237,8 @@ export default {
                 flex: 3;
                 padding: 10px 0;
                 border-radius: 100px;
+                -webkit-touch-callout: none;
+                user-select: none;
             }
         }
     }
