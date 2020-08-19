@@ -117,19 +117,15 @@ export default {
          */
         initHammer() {
             const _this = this;
-            this.hammer = new Hammer(this.markLayer);
+            this.hammer = new Hammer(document.querySelector("#konvaImageEditContainer"));
             this.hammer.get("pinch").set({ enable: true, direction: Hammer.DIRECTION_ALL });
             this.hammer.get("pan").set({ enable: true, direction: Hammer.DIRECTION_ALL });
             this.hammer.on("pinchmove", (e) => {
                 console.log("pinchmove", e.scale);
-                //_this._hammerPinchMove(ev, _this);
+                _this._hammerPinchMove(e, _this);
             });
             this.hammer.on("pinchend", (e) => {
                 //this._hammerPinchEnd(e, _this);
-            });
-            this.hammer.on("panend", (e) => {
-                console.log("end", e);
-                //_this._hammerPinchMove(ev, _this);
             });
         },
         /**
@@ -139,12 +135,33 @@ export default {
          * @param {*} _this
          * @memberof ImageExamine
          */
-        _hammerPinchMove(ev, _this) {
+        _hammerPinchMove(e, _this) {
             // console.log("ImageExamine -> _hammerPinchMove -> ev", ev);
-            _this.zoomAndPan.scale = ev.scale;
-            _this.zoomAndPan.deltaX = ev.deltaX;
-            _this.zoomAndPan.deltaY = ev.deltaY;
-            _this._redrawImage();
+
+            this.stage.scale({
+                x: e.scale,
+                y: e.scale,
+            });
+            // this.backImage.scale({
+            //     x: e.scale,
+            //     y: e.scale,
+            // });
+            // this.imageLayer.scale({
+            //     x: e.scale,
+            //     y: e.scale,
+            // });
+            // this.drawLayer.scale({
+            //     x: e.scale,
+            //     y: e.scale,
+            // });
+            // this.markLayer.scale({
+            //     x: e.scale,
+            //     y: e.scale,
+            // });
+            // this.imageLayer.draw();
+            // this.drawLayer.draw();
+            // this.markLayer.draw();
+            this.stage.draw();
         },
         /**
          * 双指结束
