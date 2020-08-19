@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="bottom-action-btns">
-                <div class="action-btn">
+                <div class="action-btn" @click="undo">
                     撤回
                 </div>
                 <div class="action-btn audio">
@@ -27,7 +27,7 @@
         </div>
 
         <!-- 颜色以及线宽部分 -->
-        <div class="konva-image-edit-tool-bar-colors-and-width" v-show='false'>
+        <div class="konva-image-edit-tool-bar-colors-and-width" v-show="false">
             <div class="top-action-btns">
                 <div class="action-btn">
                     关闭
@@ -72,6 +72,11 @@ export default {
             activeColor: "#F85251",
             sliderValue: 2,
         };
+    },
+    methods: {
+        undo() {
+            this.$emit("undo");
+        },
     },
 };
 </script>

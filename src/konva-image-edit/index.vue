@@ -1,8 +1,13 @@
 <template>
     <div class="konva-image-edit">
-        <konva-image-edit-container :width="width" :height="height - 160" :image-url="imageUrl"></konva-image-edit-container>
+        <konva-image-edit-container
+            ref="edit"
+            :width="width"
+            :height="height - 160"
+            :image-url="imageUrl"
+        ></konva-image-edit-container>
 
-        <konva-image-edit-tool-bar></konva-image-edit-tool-bar>
+        <konva-image-edit-tool-bar @undo="undo"></konva-image-edit-tool-bar>
     </div>
 </template>
 
@@ -37,7 +42,11 @@ export default {
 
     mounted() {},
 
-    methods: {},
+    methods: {
+        undo() {
+            this.$refs.edit.undo();
+        },
+    },
 };
 </script>
 

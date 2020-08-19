@@ -255,6 +255,19 @@ export default {
         endDraw() {
             this.isDraw = false;
         },
+        /**
+         * @description: 撤回笔画
+         * @param {type}
+         * @return {type}
+         */
+        undo() {
+            const children = this.drawLayer.getChildren();
+            if (children.length > 0) {
+                children[children.length - 1].destroy();
+                this.drawLayer.draw();
+                console.log("undo", children.length);
+            }
+        },
         // 画笔部分 end
         // 音频部分 start
         /**
