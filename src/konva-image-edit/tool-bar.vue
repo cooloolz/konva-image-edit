@@ -1,12 +1,12 @@
 <template>
     <div class="konva-image-edit-tool-bar">
         <!-- 主要按钮部分 -->
-        <div class="konva-image-edit-tool-bar-action-part" v-show="true">
+        <div class="konva-image-edit-tool-bar-action-part" v-show="type == 'main'">
             <div class="top-action-btns">
-                <div class="action-btn">
+                <div class="action-btn" @click="changeToolType('brush')">
                     画笔
                 </div>
-                <div class="action-btn">
+                <div class="action-btn" @click="changeToolType('eraser')">
                     橡皮檫
                 </div>
                 <div class="action-btn">
@@ -27,18 +27,28 @@
         </div>
 
         <!-- 颜色以及线宽部分 -->
-        <div class="konva-image-edit-tool-bar-colors-and-width" v-show="false">
+        <div class="konva-image-edit-tool-bar-colors-and-width" v-show="type == 'brush' || type == 'eraser'">
             <div class="top-action-btns">
-                <div class="action-btn">
+                <div class="action-btn" @click="changeToolType('main')">
                     关闭
                 </div>
-                <div class="action-btn">
+                <div v-if="type == 'brush'" class="action-btn">
                     <div class="action-btn-tabs">
-                        <div :class="['action-btn-tab', activeTab === 'colors' ? 'active' : '']">颜色</div>
-                        <div :class="['action-btn-tab', activeTab === 'width' ? 'active' : '']">粗细</div>
+                        <div
+                            @click="changeActiveTab('colors')"
+                            :class="['action-btn-tab', activeTab === 'colors' ? 'active' : '']"
+                        >
+                            颜色
+                        </div>
+                        <div
+                            @click="changeActiveTab('width')"
+                            :class="['action-btn-tab', activeTab === 'width' ? 'active' : '']"
+                        >
+                            粗细
+                        </div>
                     </div>
                 </div>
-                <div class="action-btn">
+                <div class="action-btn" @click="changeToolType('main')">
                     确认
                 </div>
             </div>
@@ -48,12 +58,21 @@
                     :key="index"
                     :class="['color', activeColor === color ? 'active' : '']"
                     :style="{ backgroundColor: color }"
+                    @click="changeLineColor(color)"
                 ></div>
             </div>
             <div class="bottom-width" v-show="activeTab === 'width'">
                 <span class="small-round"></span>
                 <div class="slider">
-                    <span class="slider-round"></span>
+                    <div class="slider-line"></div>
+                    <van-slider
+                        v-model="progressValue"
+                        max="16"
+                        min="2"
+                        bar-height="0px"
+                        active-color="#5daeff"
+                        @change="changeLineWidth"
+                    />
                 </div>
                 <span class="big-round"></span>
             </div>
@@ -64,16 +83,45 @@
 </template>
 
 <script>
+import "konva";
 export default {
+    props: {
+        type: {
+            type: String,
+            default: "main",
+        },
+    },
     data() {
         return {
-            activeTab: "width",
+            selector: null,
+            stage: null,
+            layer: null,
+            sliderCircle: null,
+            activeTab: "colors",
             colors: ["#F2F2F2", "#2C2C2C", "#F85251", "#FEC314", "#12C261", "#19ADFF", "#8569EC"],
             activeColor: "#F85251",
             sliderValue: 2,
+            progressValue: 0,
         };
     },
     methods: {
+        changeToolType(type) {
+            if (type == "brush" || type == "eraser") {
+                this.$emit("changeDrawMode", type);
+                this.changeActiveTab(type == "brush" ? "colors" : "width");
+            }
+            this.$emit("changeToolType", type);
+        },
+        changeActiveTab(tab) {
+            this.activeTab = tab;
+        },
+        changeLineColor(color) {
+            this.activeColor = color;
+            this.$emit("changeLineColor", color);
+        },
+        changeLineWidth(width) {
+            this.$emit("changeLineWidth", width);
+        },
         undo() {
             this.$emit("undo");
         },
@@ -141,7 +189,7 @@ export default {
             align-items: center;
             justify-content: space-around;
             color: #fff;
-            padding: 15px 0;
+            //padding: 15px 0;
 
             .action-btn {
                 font-weight: 400;
@@ -209,25 +257,26 @@ export default {
                     border-radius: 24px;
                 }
             }
-
             .slider {
-                border-bottom: 10px solid #d6d6d6;
-                border-left: 180px solid transparent;
                 position: relative;
-                margin-bottom: 12px;
-                margin-left: 25px;
-                margin-right: 25px;
-                .slider-round {
+                width: 200px;
+                margin: 0 20px;
+                box-sizing: border-box;
+                .slider-line {
                     position: absolute;
-                    bottom: -20px;
-                    left: -180px;
-                    width: 20px;
-                    height: 20px;
-                    border-radius: 36px;
-                    background-color: #fff;
+                    bottom: -5px;
+                    left: 0;
+                    width: 0;
+                    height: 0;
+                    border-color: #d6d6d6 transparent;
+                    border-width: 0px 0px 10px 200px;
+                    border-style: solid;
                 }
             }
         }
     }
+}
+::v-deep .van-slider {
+    border-radius: 0;
 }
 </style>

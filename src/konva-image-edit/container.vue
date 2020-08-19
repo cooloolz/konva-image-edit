@@ -37,6 +37,11 @@ export default {
             type: Number,
             default: 2,
         },
+        drawMode: {
+            // 画笔是brush，橡皮檫是Eraser
+            type: String,
+            default: "brush",
+        },
     },
 
     data() {
@@ -68,7 +73,6 @@ export default {
                 audioPlayCanvas: [], //gif节点数组
             },
             isDraw: false,
-            drawMode: "brush", // 画笔是brush，橡皮檫是Eraser
             lastDrawPoint: null,
             lastDrawLine: null,
         };

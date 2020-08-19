@@ -7,12 +7,15 @@
             :image-url="imageUrl"
             :lineColor="lineColor"
             :lineWidth="lineWidth"
+            :drawMode="drawMode"
         ></konva-image-edit-container>
 
         <konva-image-edit-tool-bar
             :type="toolType"
             @changeToolType="changeToolType"
             @changeLineColor="changeLineColor"
+            @changeLineWidth="changeLineWidth"
+            @changeDrawMode="changeDrawMode"
             @undo="undo"
         ></konva-image-edit-tool-bar>
     </div>
@@ -48,6 +51,7 @@ export default {
             toolType: "main",
             lineColor: "red",
             lineWidth: 2,
+            drawMode: "brush",
         };
     },
 
@@ -62,6 +66,9 @@ export default {
         },
         changeLineWidth(width) {
             this.lineWidth = width;
+        },
+        changeDrawMode(mode) {
+            this.drawMode = mode;
         },
         undo() {
             this.$refs.edit.undo();
