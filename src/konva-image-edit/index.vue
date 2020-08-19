@@ -5,9 +5,16 @@
             :width="width"
             :height="height - 160"
             :image-url="imageUrl"
+            :lineColor="lineColor"
+            :lineWidth="lineWidth"
         ></konva-image-edit-container>
 
-        <konva-image-edit-tool-bar @undo="undo"></konva-image-edit-tool-bar>
+        <konva-image-edit-tool-bar
+            :type="toolType"
+            @changeToolType="changeToolType"
+            @changeLineColor="changeLineColor"
+            @undo="undo"
+        ></konva-image-edit-tool-bar>
     </div>
 </template>
 
@@ -37,12 +44,25 @@ export default {
     },
 
     data() {
-        return {};
+        return {
+            toolType: "main",
+            lineColor: "red",
+            lineWidth: 2,
+        };
     },
 
     mounted() {},
 
     methods: {
+        changeToolType(type) {
+            this.toolType = type;
+        },
+        changeLineColor(color) {
+            this.lineColor = color;
+        },
+        changeLineWidth(width) {
+            this.lineWidth = width;
+        },
         undo() {
             this.$refs.edit.undo();
         },

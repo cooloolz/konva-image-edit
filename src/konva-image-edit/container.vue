@@ -226,8 +226,8 @@ export default {
             this.lastDrawPoint = this.stage.getPointerPosition();
             this.lastDrawLine = new Konva.Line({
                 tension: 1,
-                stroke: "#df4b26",
-                strokeWidth: 2,
+                stroke: this.lineColor,
+                strokeWidth: this.lineWidth,
                 lineCap: "round",
                 lineJoin: "round",
                 globalCompositeOperation: this.drawMode === "brush" ? "source-over" : "destination-out",
