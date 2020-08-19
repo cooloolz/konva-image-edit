@@ -1,5 +1,10 @@
 <template>
-    <div class="konva-image-edit-container" id="konvaImageEditContainer"></div>
+    <div class="konva-image-edit-container" id="konvaImageEditContainer">
+        <van-popup v-model="show" get-container="body">
+            <input type="text" v-model="text" />
+            <button @click="onClickConfirmText">确定</button>
+        </van-popup>
+    </div>
 </template>
 
 <script>
@@ -32,6 +37,9 @@ export default {
             drawMode: "brush", // 画笔是brush，橡皮檫是Eraser
             lastDrawPoint: null,
             lastDrawLine: null,
+            show: false,
+            text: "",
+            activeTextObj: "",
         };
     },
 
@@ -39,6 +47,7 @@ export default {
         this.initStage();
         this.initLayer();
         this.initImageLayerBackImage();
+        this.initText();
     },
 
     methods: {
@@ -122,7 +131,7 @@ export default {
         stageOnMousemoveOrTouchmove(event) {
             this.moveDraw();
         },
-        // 画笔部分 start
+        // ======================================== 画笔部分 start
         /**
          * @description: 开始绘画
          * @param {type}
@@ -162,7 +171,54 @@ export default {
         endDraw() {
             this.isDraw = false;
         },
-        // 画笔部分 end
+        // ======================================== 画笔部分 end
+
+        // ======================================== 文字部分 start
+        /**
+         * @description: 初始化一个文字做测试
+         * @param {type}
+         * @return {type}
+         */
+        initText() {
+            const _this = this;
+
+            var simpleText = new Konva.Text({
+                x: 100,
+                y: 100,
+                text: "请点击输入文字",
+                fontSize: 30,
+                fontFamily: "Calibri",
+                fill: "green",
+            });
+
+            simpleText.on("click tap", function(event) {
+                _this.clickText(event);
+            });
+
+            this.markLayer.add(simpleText);
+            this.markLayer.batchDraw();
+        },
+        /**
+         * @description: 点击文字事件
+         * @param {type}
+         * @return {type}
+         */
+        clickText(event) {
+            console.log(event);
+            this.activeTextObj = event.currentTarget;
+            this.show = true;
+        },
+        /**
+         * @description: 确定文字
+         * @param {type}
+         * @return {type}
+         */
+        onClickConfirmText() {
+            this.activeTextObj.text(this.text);
+            this.markLayer.batchDraw();
+            this.show = false;
+        },
+        // ======================================== 文字部分 end
     },
 };
 </script>

@@ -27,7 +27,7 @@
         </div>
 
         <!-- 颜色以及线宽部分 -->
-        <div class="konva-image-edit-tool-bar-colors-and-width" v-show='false'>
+        <div class="konva-image-edit-tool-bar-colors-and-width" v-show="false">
             <div class="top-action-btns">
                 <div class="action-btn">
                     关闭
