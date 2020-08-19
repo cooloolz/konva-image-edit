@@ -265,7 +265,6 @@ export default {
             if (children.length > 0) {
                 children[children.length - 1].destroy();
                 this.drawLayer.draw();
-                console.log("undo", children.length);
             }
         },
         // 画笔部分 end
