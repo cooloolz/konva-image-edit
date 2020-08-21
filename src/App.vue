@@ -14,7 +14,12 @@
 
         <div class="page__content" id="page__content">
             <div class="image-edit-content" id="image-edit-content">
-                <konva-image-edit v-if="width > 0 && height > 0" :width="width" :height="height" :image-url="imageUrl"></konva-image-edit>
+                <konva-image-edit
+                    v-if="width > 0 && height > 0"
+                    :width="width"
+                    :height="height"
+                    :image-url="imageUrl"
+                ></konva-image-edit>
             </div>
         </div>
     </v-ons-page>
@@ -32,7 +37,8 @@ export default {
         return {
             width: 0,
             height: 0,
-            imageUrl: 'https://oral3-test.oss-cn-hangzhou.aliyuncs.com/80222180102/9d990a71-525f-5050-ae15-ddc7c0dc5576.jpeg'
+            imageUrl:
+                "https://oral3-test.oss-cn-hangzhou.aliyuncs.com/80222180102/9d990a71-525f-5050-ae15-ddc7c0dc5576.jpeg",
         };
     },
 

@@ -9,7 +9,7 @@
                 <div class="action-btn" @click="changeToolType('eraser')">
                     橡皮檫
                 </div>
-                <div class="action-btn">
+                <div class="action-btn" @click="newText()">
                     文本
                 </div>
             </div>
@@ -188,6 +188,9 @@ export default {
         undo() {
             this.$emit("undo");
         },
+        newText() {
+            this.$emit("newText");
+        },
     },
 };
 </script>
@@ -235,7 +238,7 @@ export default {
             .audio {
                 background-color: #457ad0;
                 flex: 3;
-                padding: 10px 0;
+                padding: 25px 0;
                 border-radius: 100px;
                 -webkit-touch-callout: none;
                 user-select: none;

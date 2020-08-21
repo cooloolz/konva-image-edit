@@ -5,7 +5,6 @@ import "vant/lib/index.css";
 import Vue from "vue";
 import App from "./App.vue";
 import Vant from "vant";
-import "vant/lib/index.css";
 import VueOnsen from "vue-onsenui";
 import { VueHammer } from "vue2-hammer";
 VueHammer.config.press = {

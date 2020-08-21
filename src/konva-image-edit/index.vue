@@ -18,6 +18,7 @@
             @changeLineWidth="changeLineWidth"
             @changeDrawMode="changeDrawMode"
             @undo="undo"
+            @newText="newText"
         ></konva-image-edit-tool-bar>
     </div>
 </template>
@@ -73,6 +74,9 @@ export default {
         },
         undo() {
             this.$refs.edit.undo();
+        },
+        newText() {
+            this.$refs.edit.newText();
         },
     },
 };
