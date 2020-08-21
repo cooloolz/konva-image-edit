@@ -1,0 +1,10 @@
+{
+  "android": {
+    "release": {
+      "keystore": "wflischool.keystore",
+      "alias": "wflischool.keystore",
+      "storePassword": "123qwe",
+      "password": "123qwe"
+    }
+  }
+}

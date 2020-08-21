@@ -548,18 +548,6 @@ export default {
                 fill: _this.activeColor,
                 draggable: true,
             });
-            const tr = new Konva.Transformer({
-                node: simpleText,
-                centeredScaling: true,
-                keepRatio: true,
-                enabledAnchors: ["top-left", "top-right", "bottom-left", "bottom-right"],
-                boundBoxFunc: function(oldBoundBox, newBoundBox) {
-                    if (Math.abs(newBoundBox.width) > _this.width || Math.abs(newBoundBox.height) <= 20) {
-                        return oldBoundBox;
-                    }
-                    return newBoundBox;
-                },
-            });
 
             simpleText.on("click tap", function(event) {
                 _this.clickText(simpleText);
@@ -587,7 +575,6 @@ export default {
             this.operate.push("text");
             this.textObjs.push(simpleText);
             this.markLayer.add(simpleText);
-            this.markLayer.add(tr);
             this.markLayer.batchDraw();
         },
         /**
