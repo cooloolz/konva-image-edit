@@ -351,10 +351,7 @@ export default {
         hammerPinchEnd(e) {
             // 把这次最后的一个比例记录下来
             this.zoomAndPan.lastScale = this.stage.scaleX();
-            this.lastPosition = {
-                x: this.stage.x(),
-                y: this.stage.y(),
-            };
+            this.homing(this.stage.x(), this.stage.y());
             console.log("ImageExamine -> _hammerPinchEnd -> e", this.zoomAndPan.lastScale);
         },
         /**
@@ -376,7 +373,6 @@ export default {
                 y: this.lastPosition.y + e.deltaY,
             });
             this.stage.draw();
-            //console.log("panmove", e.deltaX, e.deltaY);
         },
         /**
          * @description: 拖动结束
@@ -384,11 +380,7 @@ export default {
          */
         hammerPanEnd(e) {
             if (this.hammerPanDisable) return;
-            this.lastPosition = {
-                x: this.stage.x(),
-                y: this.stage.y(),
-            };
-            console.log("ImageExamine -> _hammerPanEnd -> e", this.stage.x(), this.stage.y());
+            this.homing(this.stage.x(), this.stage.y());
         },
         /**
          * @description: 监听鼠标按下或者触摸开始
@@ -434,7 +426,10 @@ export default {
                 lineCap: "round",
                 lineJoin: "round",
                 globalCompositeOperation: this.drawMode === "brush" ? "source-over" : "destination-out",
-                points: [this.lastDrawPoint.x, this.lastDrawPoint.y],
+                points: [
+                    (this.lastDrawPoint.x - this.stage.x()) / this.stage.scaleX(),
+                    (this.lastDrawPoint.y - this.stage.y()) / this.stage.scaleX(),
+                ],
             });
             this.drawLayer.add(this.lastDrawLine);
         },
@@ -446,7 +441,12 @@ export default {
         moveDraw() {
             if (!this.isDraw) return false;
             this.lastDrawPoint = this.stage.getPointerPosition();
-            const newPoints = this.lastDrawLine.points().concat([this.lastDrawPoint.x, this.lastDrawPoint.y]);
+            const newPoints = this.lastDrawLine
+                .points()
+                .concat([
+                    (this.lastDrawPoint.x - this.stage.x()) / this.stage.scaleX(),
+                    (this.lastDrawPoint.y - this.stage.y()) / this.stage.scaleX(),
+                ]);
             this.lastDrawLine.points(newPoints);
             this.drawLayer.batchDraw();
         },
@@ -486,6 +486,48 @@ export default {
         },
         onPinchin(e) {
             console.log("pinchin", e.scale);
+        },
+        homing(x, y) {
+            const width = this.stage.width() * this.stage.scaleX() - this.width;
+            const height = this.stage.height() * this.stage.scaleX() - this.height;
+            console.log("ImageExamine -> _hammerPanEnd -> e", x, y, width, height);
+            if ((x > 0 && y > 0) || this.stage.scaleX() === 1) {
+                //左上
+                this.lastPosition = { x: 0, y: 0 };
+            } else if (x < -width && y > 0) {
+                //右上
+                this.lastPosition = { x: -width, y: 0 };
+            } else if (x > 0 && y < -height) {
+                //左下
+                this.lastPosition = { x: 0, y: -height };
+            } else if (x < -width && y < -height) {
+                //右下
+                this.lastPosition = { x: -width, y: -height };
+            } else if (x <= 0 && x >= -width && y > 0) {
+                //中上
+                this.lastPosition = { x: x, y: 0 };
+            } else if (x <= 0 && x >= -width && y < -height) {
+                //中下
+                this.lastPosition = { x: x, y: -height };
+            } else if (x > 0 && y <= 0 && y >= -height) {
+                //中左
+                this.lastPosition = { x: 0, y: y };
+            } else if (x < -width && y <= 0 && y >= -height) {
+                //中右
+                this.lastPosition = { x: -width, y: y };
+            } else {
+                this.lastPosition = { x: x, y: y };
+            }
+            this.stage.tween = new Konva.Tween({
+                node: this.stage,
+                scaleX: this.stage.scaleX(),
+                scaleY: this.stage.scaleX(),
+                x: this.lastPosition.x,
+                y: this.lastPosition.y,
+                easing: Konva.Easings.StrongEaseInOut,
+                duration: 1,
+            });
+            this.stage.tween.play();
         },
         // ======================================== 画笔部分 end
         // ======================================== 音频部分 start
