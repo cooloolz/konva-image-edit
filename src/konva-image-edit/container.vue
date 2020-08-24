@@ -329,10 +329,7 @@ export default {
         hammerPinchMove(e) {
             // console.log("ImageExamine -> _hammerPinchMove -> ev", ev);
 
-            this.zoomAndPan.scale = e.scale;
-            this.zoomAndPan.deltaX = e.deltaX;
-            this.zoomAndPan.deltaY = e.deltaY;
-            const newScale = this.zoomAndPan.scale * this.zoomAndPan.lastScale;
+            const newScale = e.scale * this.zoomAndPan.lastScale;
             this.stage.scale({
                 x: newScale,
                 y: newScale,
@@ -349,8 +346,6 @@ export default {
          * @param {*} e
          */
         hammerPinchEnd(e) {
-            // 把这次最后的一个比例记录下来
-            this.zoomAndPan.lastScale = this.stage.scaleX();
             this.homing(this.stage.x(), this.stage.y());
             console.log("ImageExamine -> _hammerPinchEnd -> e", this.zoomAndPan.lastScale);
         },
@@ -488,10 +483,11 @@ export default {
             console.log("pinchin", e.scale);
         },
         homing(x, y) {
-            const width = this.stage.width() * this.stage.scaleX() - this.width;
-            const height = this.stage.height() * this.stage.scaleX() - this.height;
+            const scale = this.stage.scaleX();
+            const width = this.stage.width() * scale - this.width;
+            const height = this.stage.height() * scale - this.height;
             console.log("ImageExamine -> _hammerPanEnd -> e", x, y, width, height);
-            if ((x > 0 && y > 0) || this.stage.scaleX() === 1) {
+            if ((x > 0 && y > 0) || scale <= 1) {
                 //左上
                 this.lastPosition = { x: 0, y: 0 };
             } else if (x < -width && y > 0) {
@@ -518,10 +514,12 @@ export default {
             } else {
                 this.lastPosition = { x: x, y: y };
             }
+            // 把这次最后的一个比例记录下来
+            this.zoomAndPan.lastScale = scale < 1 ? 1 : scale;
             this.stage.tween = new Konva.Tween({
                 node: this.stage,
-                scaleX: this.stage.scaleX(),
-                scaleY: this.stage.scaleX(),
+                scaleX: scale < 1 ? 1 : scale,
+                scaleY: scale < 1 ? 1 : scale,
                 x: this.lastPosition.x,
                 y: this.lastPosition.y,
                 easing: Konva.Easings.StrongEaseInOut,
